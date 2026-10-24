@@ -106,7 +106,7 @@
                 <!-- Плашка версии 2.1.0 и Центр управления -->
                 <div class="hidden sm:flex items-center gap-2">
                     <span id="header-version-pill" class="font-mono-sys text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40">
-                        2.1.0
+                        2.1.1
                     </span>
                     <span class="text-xs text-gray-400 font-medium" data-i18n="header_center">Центр управления</span>
                 </div>
@@ -234,7 +234,7 @@
                                 <span data-i18n="btn_download">СКАЧАТЬ ПРОГРАММУ</span>
                             </div>
                             <span id="download-btn-sub" class="font-mono-sys text-xs font-bold px-2.5 py-0.5 rounded bg-[#0b0e13]/15 text-[#0b0e13]">
-                                v2.1.0 • Windows (x64)
+                                v2.1.1 • Windows (x64)
                             </span>
                         </a>
 
@@ -243,11 +243,11 @@
                             <div class="flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
                                 <span data-i18n="stat_all_downloads">Всего скачиваний:</span>
-                                <strong id="stat-total-count" class="font-mono-sys font-bold text-white text-sm">14</strong>
+                                <strong id="stat-total-count" class="font-mono-sys font-bold text-white text-sm">15</strong>
                             </div>
                             <div class="flex items-center gap-1.5 font-mono-sys text-[11px] text-gray-400">
-                                <span id="stat-current-version-label">v2.1.0:</span>
-                                <span id="stat-current-count" class="text-[#f2b718] font-bold">3</span>
+                                <span id="stat-current-version-label">v2.1.1:</span>
+                                <span id="stat-current-count" class="text-[#f2b718] font-bold">0</span>
                             </div>
                         </div>
 
@@ -286,9 +286,9 @@
                 <div class="px-5 py-4 bg-[#0e131b]/60 border-b border-[#232c3d] flex items-center justify-between gap-3">
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span id="release-title" class="text-base sm:text-lg font-bold text-white truncate">TTRPG Helper v2.1.0</span>
+                            <span id="release-title" class="text-base sm:text-lg font-bold text-white truncate">TTRPG Helper v2.1.1</span>
                             <span id="release-tag" class="font-mono-sys text-xs font-bold px-2 py-0.5 rounded bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30 shrink-0">
-                                v2.1.0
+                                v2.1.1
                             </span>
                         </div>
                         <div class="flex items-center gap-2 mt-1 flex-wrap">
@@ -297,7 +297,7 @@
                             </span>
                             <span id="release-downloads-pill" class="font-mono-sys text-[11px] font-bold px-2 py-0.5 rounded bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30 flex items-center gap-1">
                                 <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                                <span id="release-downloads-count">3 скачивания</span>
+                                <span id="release-downloads-count">0 скачиваний</span>
                             </span>
                         </div>
                     </div>
@@ -358,7 +358,7 @@
             <div class="flex flex-wrap items-center justify-center sm:justify-start gap-4">
                 <span class="flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
-                    <strong id="footer-version-tag" class="text-gray-200">TTRPG Helper v2.1.0</strong> — <span data-i18n="footer_role">Рабочее место Мастера</span>
+                    <strong id="footer-version-tag" class="text-gray-200">TTRPG Helper v2.1.1</strong> — <span data-i18n="footer_role">Рабочее место Мастера</span>
                 </span>
                 <span class="hidden md:inline text-gray-600">|</span>
                 <span class="hidden md:inline font-mono-sys text-[11px] text-gray-400">SQLite Local DB • Dual-Monitor Fog of War</span>
@@ -392,7 +392,7 @@
             if (mod10 >= 2 && mod10 <= 4) return 'скачивания';
             return 'скачиваний';
         }
-        const DEFAULT_VERSION = "2.1.0";
+        const DEFAULT_VERSION = "2.1.1";
 
         let currentLang = 'ru';
         let githubReleaseData = null;
@@ -415,7 +415,7 @@
                 btn_download: "СКАЧАТЬ ПРОГРАММУ",
                 btn_discord: "DISCORD",
                 release_panel_title: "АКТУАЛЬНЫЙ РЕЛИЗ",
-                release_date_fallback: "Стабильная сборка v2.1.0 • Готова к скачиванию",
+                release_date_fallback: "Стабильная сборка v2.1.1 • Готова к скачиванию",
                 release_tag_btn: "Релиз на GitHub",
                 changelog_heading: "СПИСОК ИЗМЕНЕНИЙ (CHANGELOG)",
                 api_synced: "Подключено к GitHub Releases",
@@ -453,7 +453,7 @@
                 btn_download: "DOWNLOAD APP",
                 btn_discord: "DISCORD",
                 release_panel_title: "LATEST RELEASE",
-                release_date_fallback: "Stable build v2.1.0 • Ready for download",
+                release_date_fallback: "Stable build v2.1.1 • Ready for download",
                 release_tag_btn: "GitHub Release",
                 changelog_heading: "RELEASE NOTES (CHANGELOG)",
                 api_synced: "Connected to GitHub Releases",
@@ -742,10 +742,18 @@
                     }
                 }
 
+                // Версия и тег
+                const tag = (data.tag_name || `v${DEFAULT_VERSION}`).trim();
+                const cleanTag = tag.replace(/^v/i, '');
+                const title = data.name || `TTRPG Helper v${cleanTag}`;
+
                 // Учитываем 3 реальных скачивания v2.1.0, сброшенных GitHub при перезаливе Setup.exe
                 const REPLACED_SETUP_DOWNLOADS = 3;
                 totalDownloads += REPLACED_SETUP_DOWNLOADS;
-                currentReleaseDownloads += REPLACED_SETUP_DOWNLOADS;
+                // К скачиваниям конкретно текущего релиза прибавляем только если текущий релиз — именно v2.1.0
+                if (cleanTag === '2.1.0') {
+                    currentReleaseDownloads += REPLACED_SETUP_DOWNLOADS;
+                }
 
                 cachedTotalDownloads = totalDownloads;
                 cachedCurrentDownloads = currentReleaseDownloads;
@@ -756,17 +764,18 @@
                 const curCountEl = document.getElementById('stat-current-count');
                 if (curCountEl) curCountEl.textContent = currentReleaseDownloads;
 
+                // Динамическое обновление метки версии под кнопкой скачивания (например, "v2.1.1:")
+                const curVerLabel = document.getElementById('stat-current-version-label');
+                if (curVerLabel) {
+                    curVerLabel.textContent = `${tag.startsWith('v') ? tag : 'v' + tag}:`;
+                }
+
                 const pillCountEl = document.getElementById('release-downloads-count');
                 if (pillCountEl) {
                     pillCountEl.textContent = currentLang === 'ru' 
                         ? `${currentReleaseDownloads} ${pluralizeDownloads(currentReleaseDownloads, 'ru')}` 
                         : `${currentReleaseDownloads} ${pluralizeDownloads(currentReleaseDownloads, 'en')}`;
                 }
-
-                // Версия и тег
-                const tag = (data.tag_name || `v${DEFAULT_VERSION}`).trim();
-                const cleanTag = tag.replace(/^v/i, '');
-                const title = data.name || `TTRPG Helper v${cleanTag}`;
 
                 // 1. Плашка в шапке
                 const headerPill = document.getElementById('header-version-pill');
