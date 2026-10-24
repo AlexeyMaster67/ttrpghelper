@@ -503,6 +503,7 @@
 
             const lines = raw.split('\n');
             let html = '';
+            let shaRendered = false;
 
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
@@ -526,17 +527,35 @@
                     continue;
                 }
 
-                // Специальный блок SHA-256 с кнопкой копирования
-                if (line.includes('SHA-256') || /^[A-Fa-f0-9]{64}$/.test(line.replace(/[`*]/g, '').trim())) {
-                    let hash = assetSha || line.replace(/.*SHA-256:?/i, '').replace(/[`*]/g, '').trim();
-                    if (!hash && i + 1 < lines.length) {
+                // Специальный блок SHA-256 с кнопкой копирования (максимум 1 карточка за релиз)
+                const cleanedLine = line.replace(/[`*]/g, '').trim();
+                const isShaLine = line.includes('SHA-256') || /^[A-Fa-f0-9]{64}$/.test(cleanedLine);
+                if (isShaLine) {
+                    if (shaRendered) {
+                        continue;
+                    }
+
+                    let hash = '';
+                    const directHash = cleanedLine.replace(/.*SHA-256:?/i, '').trim();
+                    if (/^[A-Fa-f0-9]{64}$/.test(directHash)) {
+                        hash = directHash;
+                    }
+
+                    // Если хэш перенесён на следующую строку (например, **SHA-256:** \n `ABC...`)
+                    if (i + 1 < lines.length) {
                         const nextCandidate = lines[i + 1].trim().replace(/[`*]/g, '').trim();
                         if (/^[A-Fa-f0-9]{64}$/.test(nextCandidate)) {
-                            hash = nextCandidate;
-                            i++;
+                            if (!hash) hash = nextCandidate;
+                            i++; // Поглощаем следующую строку, чтобы она не рендерилась как дубликат
                         }
                     }
+
+                    if (!hash && assetSha) {
+                        hash = assetSha;
+                    }
+
                     if (hash) {
+                        shaRendered = true;
                         html += `
                             <div class="p-3 rounded-xl bg-[#0b0e13] border border-[#232c3d] flex flex-col gap-2 my-2">
                                 <div class="flex items-center justify-between text-[11px] text-gray-400 font-semibold">
