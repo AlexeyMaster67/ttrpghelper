@@ -478,7 +478,7 @@
         }
 
         // Парсер Markdown из GitHub Release body в тактический UI
-        function formatMarkdownRelease(md) {
+        function formatMarkdownRelease(md, assetSha) {
             if (!md) return '';
             
             let raw = md.replace(/\r\n/g, '\n').trim();
@@ -512,7 +512,7 @@
 
                 // Специальный блок SHA-256 с кнопкой копирования
                 if (line.includes('SHA-256') || /^[A-Fa-f0-9]{64}$/.test(line.replace(/[`*]/g, '').trim())) {
-                    let hash = line.replace(/.*SHA-256:?/i, '').replace(/[`*]/g, '').trim();
+                    let hash = assetSha || line.replace(/.*SHA-256:?/i, '').replace(/[`*]/g, '').trim();
                     if (!hash && i + 1 < lines.length) {
                         const nextCandidate = lines[i + 1].trim().replace(/[`*]/g, '').trim();
                         if (/^[A-Fa-f0-9]{64}$/.test(nextCandidate)) {
@@ -627,9 +627,18 @@
             if (!container) return;
             container.innerHTML = '';
 
+            // Проверяем наличие точного SHA-256 из метаданных ассета GitHub
+            let assetSha = null;
+            if (githubReleaseData && Array.isArray(githubReleaseData.assets)) {
+                const inst = githubReleaseData.assets.find(a => /\.(exe|msi|zip)$/i.test(a.name)) || githubReleaseData.assets[0];
+                if (inst && inst.digest && inst.digest.startsWith('sha256:')) {
+                    assetSha = inst.digest.replace('sha256:', '').toUpperCase();
+                }
+            }
+
             // Если язык RU и есть данные релиза из GitHub API — рендерим полный актуальный лог
             if (currentLang === 'ru' && githubReleaseData && githubReleaseData.body && githubReleaseData.body.trim().length > 0) {
-                container.innerHTML = formatMarkdownRelease(githubReleaseData.body);
+                container.innerHTML = formatMarkdownRelease(githubReleaseData.body, assetSha);
                 return;
             }
 
@@ -662,7 +671,8 @@
             if (statusText) statusText.textContent = i18n[currentLang].api_checking;
 
             try {
-                const response = await fetch(GITHUB_API_LATEST, {
+                const response = await fetch(`${GITHUB_API_LATEST}?_t=${Date.now()}`, {
+                    cache: 'no-store',
                     headers: { 'Accept': 'application/vnd.github.v3+json' }
                 });
 
