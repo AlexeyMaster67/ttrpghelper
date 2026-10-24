@@ -238,6 +238,19 @@
                             </span>
                         </a>
 
+                        <!-- ПЛАШКА СТАТИСТИКИ СКАЧИВАНИЙ -->
+                        <div id="downloads-stat-bar" class="flex items-center justify-between px-3 py-2 rounded-xl bg-[#0e131b]/80 border border-[#232c3d] text-xs text-gray-300">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
+                                <span data-i18n="stat_all_downloads">Всего скачиваний:</span>
+                                <strong id="stat-total-count" class="font-mono-sys font-bold text-white text-sm">14</strong>
+                            </div>
+                            <div class="flex items-center gap-1.5 font-mono-sys text-[11px] text-gray-400">
+                                <span id="stat-current-version-label">v2.1.0:</span>
+                                <span id="stat-current-count" class="text-[#f2b718] font-bold">3</span>
+                            </div>
+                        </div>
+
                         <!-- 2 и 3 КНОПКИ В РЯД: DISCORD и ПОДДЕРЖАТЬ -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             
@@ -292,8 +305,14 @@
                                 v2.1.0+
                             </span>
                         </div>
-                        <div id="release-date" class="text-xs text-gray-400 mt-0.5" data-i18n="release_date_fallback">
-                            Стабильная сборка • Готова к скачиванию
+                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                            <span id="release-date" class="text-xs text-gray-400" data-i18n="release_date_fallback">
+                                Стабильная сборка • Готова к скачиванию
+                            </span>
+                            <span id="release-downloads-pill" class="font-mono-sys text-[11px] font-bold px-2 py-0.5 rounded bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30 flex items-center gap-1">
+                                <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                <span id="release-downloads-count">3 скачивания</span>
+                            </span>
                         </div>
                     </div>
 
@@ -374,6 +393,20 @@
         // =========================================================================
         const GITHUB_REPO = "AlexeyMaster67/TTRPG-Helper";
         const GITHUB_API_LATEST = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
+        const GITHUB_API_RELEASES = `https://api.github.com/repos/${GITHUB_REPO}/releases`;
+
+        let cachedTotalDownloads = 14;
+        let cachedCurrentDownloads = 3;
+
+        function pluralizeDownloads(n, lang) {
+            if (lang !== 'ru') return n === 1 ? 'download' : 'downloads';
+            const mod10 = n % 10;
+            const mod100 = n % 100;
+            if (mod100 >= 11 && mod100 <= 19) return 'скачиваний';
+            if (mod10 === 1) return 'скачивание';
+            if (mod10 >= 2 && mod10 <= 4) return 'скачивания';
+            return 'скачиваний';
+        }
         const DEFAULT_VERSION = "2.1.0";
 
         let currentLang = 'ru';
@@ -407,6 +440,7 @@
                 all_releases_link: "Все версии и чейнжлоги",
                 footer_role: "Рабочее место Мастера",
                 footer_donate: "Поддержать автора",
+                stat_all_downloads: "Всего скачиваний:",
                 sha_title: "Контрольная сумма SHA-256",
                 sha_copy: "Скопировать",
                 sha_copied: "✓ Скопировано",
@@ -446,6 +480,7 @@
                 all_releases_link: "All versions & changelogs",
                 footer_role: "Game Master Control Center",
                 footer_donate: "Support Creator",
+                stat_all_downloads: "Total downloads:",
                 sha_title: "SHA-256 Checksum",
                 sha_copy: "Copy",
                 sha_copied: "✓ Copied",
@@ -671,7 +706,7 @@
             if (statusText) statusText.textContent = i18n[currentLang].api_checking;
 
             try {
-                const response = await fetch(`${GITHUB_API_LATEST}?_t=${Date.now()}`, {
+                const response = await fetch(`${GITHUB_API_RELEASES}?_t=${Date.now()}`, {
                     cache: 'no-store',
                     headers: { 'Accept': 'application/vnd.github.v3+json' }
                 });
@@ -680,8 +715,48 @@
                     throw new Error(`GitHub API HTTP ${response.status}`);
                 }
 
-                const data = await response.json();
+                const releases = await response.json();
+                if (!Array.isArray(releases) || releases.length === 0) return;
+
+                const data = releases[0];
                 githubReleaseData = data;
+
+                // Подсчет всех скачиваний по всем релизам репозитория AlexeyMaster67/TTRPG-Helper
+                let totalDownloads = 0;
+                let currentReleaseDownloads = 0;
+
+                releases.forEach(r => {
+                    if (Array.isArray(r.assets)) {
+                        r.assets.forEach(a => {
+                            if (/\.(exe|msi|zip)$/i.test(a.name)) {
+                                totalDownloads += (a.download_count || 0);
+                            }
+                        });
+                    }
+                });
+
+                if (Array.isArray(data.assets)) {
+                    const inst = data.assets.find(a => /\.(exe|msi|zip)$/i.test(a.name)) || data.assets[0];
+                    if (inst) {
+                        currentReleaseDownloads = inst.download_count || 0;
+                    }
+                }
+
+                cachedTotalDownloads = totalDownloads;
+                cachedCurrentDownloads = currentReleaseDownloads;
+
+                const totalEl = document.getElementById('stat-total-count');
+                if (totalEl) totalEl.textContent = totalDownloads;
+
+                const curCountEl = document.getElementById('stat-current-count');
+                if (curCountEl) curCountEl.textContent = currentReleaseDownloads;
+
+                const pillCountEl = document.getElementById('release-downloads-count');
+                if (pillCountEl) {
+                    pillCountEl.textContent = currentLang === 'ru' 
+                        ? `${currentReleaseDownloads} ${pluralizeDownloads(currentReleaseDownloads, 'ru')}` 
+                        : `${currentReleaseDownloads} ${pluralizeDownloads(currentReleaseDownloads, 'en')}`;
+                }
 
                 // Версия и тег
                 const tag = (data.tag_name || `v${DEFAULT_VERSION}`).trim();
@@ -729,6 +804,13 @@
                 // 6. Дата релиза
                 if (data.published_at) {
                     updateReleaseDateText();
+
+            const pillCountEl = document.getElementById('release-downloads-count');
+            if (pillCountEl) {
+                pillCountEl.textContent = lang === 'ru' 
+                    ? `${cachedCurrentDownloads} ${pluralizeDownloads(cachedCurrentDownloads, 'ru')}` 
+                    : `${cachedCurrentDownloads} ${pluralizeDownloads(cachedCurrentDownloads, 'en')}`;
+            }
                 }
 
                 // 7. Индикатор статуса
