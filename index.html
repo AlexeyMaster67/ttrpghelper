@@ -742,6 +742,11 @@
                     }
                 }
 
+                // Учитываем 3 реальных скачивания v2.1.0, сброшенных GitHub при перезаливе Setup.exe
+                const REPLACED_SETUP_DOWNLOADS = 3;
+                totalDownloads += REPLACED_SETUP_DOWNLOADS;
+                currentReleaseDownloads += REPLACED_SETUP_DOWNLOADS;
+
                 cachedTotalDownloads = totalDownloads;
                 cachedCurrentDownloads = currentReleaseDownloads;
 
@@ -804,13 +809,6 @@
                 // 6. Дата релиза
                 if (data.published_at) {
                     updateReleaseDateText();
-
-            const pillCountEl = document.getElementById('release-downloads-count');
-            if (pillCountEl) {
-                pillCountEl.textContent = lang === 'ru' 
-                    ? `${cachedCurrentDownloads} ${pluralizeDownloads(cachedCurrentDownloads, 'ru')}` 
-                    : `${cachedCurrentDownloads} ${pluralizeDownloads(cachedCurrentDownloads, 'en')}`;
-            }
                 }
 
                 // 7. Индикатор статуса
@@ -893,6 +891,13 @@
 
             updateDownloadButtonSubtitle();
             updateReleaseDateText();
+
+            const pillCountEl = document.getElementById('release-downloads-count');
+            if (pillCountEl) {
+                pillCountEl.textContent = lang === 'ru' 
+                    ? `${cachedCurrentDownloads} ${pluralizeDownloads(cachedCurrentDownloads, 'ru')}` 
+                    : `${cachedCurrentDownloads} ${pluralizeDownloads(cachedCurrentDownloads, 'en')}`;
+            }
 
             const statusText = document.getElementById('api-status-text');
             if (statusText && githubReleaseData && githubReleaseData.tag_name) {
