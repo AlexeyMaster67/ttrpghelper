@@ -905,6 +905,28 @@
             renderChangelog();
         }
 
+        // Мгновенный отклик счетчика при клике по кнопке "Скачать" (Optimistic UI)
+        const downloadMainBtn = document.getElementById('download-main-btn');
+        if (downloadMainBtn) {
+            downloadMainBtn.addEventListener('click', () => {
+                if (!sessionStorage.getItem('ttrpg_download_clicked')) {
+                    sessionStorage.setItem('ttrpg_download_clicked', '1');
+                    cachedTotalDownloads++;
+                    cachedCurrentDownloads++;
+                    const totalEl = document.getElementById('stat-total-count');
+                    if (totalEl) totalEl.textContent = cachedTotalDownloads;
+                    const curCountEl = document.getElementById('stat-current-count');
+                    if (curCountEl) curCountEl.textContent = cachedCurrentDownloads;
+                    const pillCountEl = document.getElementById('release-downloads-count');
+                    if (pillCountEl) {
+                        pillCountEl.textContent = currentLang === 'ru' 
+                            ? `${cachedCurrentDownloads} ${pluralizeDownloads(cachedCurrentDownloads, 'ru')}` 
+                            : `${cachedCurrentDownloads} ${pluralizeDownloads(cachedCurrentDownloads, 'en')}`;
+                    }
+                }
+            });
+        }
+
         // Инициализация при загрузке страницы
         renderChangelog();
         fetchLatestGitHubRelease();
