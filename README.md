@@ -7,5 +7,6 @@
 - **Основной репозиторий приложения:** [AlexeyMaster67/TTRPG-Helper](https://github.com/AlexeyMaster67/TTRPG-Helper)
 - **Релизы и скачивание:** [GitHub Releases](https://github.com/AlexeyMaster67/TTRPG-Helper/releases)
 - **Страница на Itch.io:** [alexeymaster67.itch.io/ttrpg-helper](https://alexeymaster67.itch.io/ttrpg-helper)
+- **Страница на AlternativeTo:** [alternativeto.net/software/ttrpg-helper](https://alternativeto.net/software/ttrpg-helper/)
 - **Discord сообщество:** [Присоединиться к серверу](https://discord.gg/MGnjS3ceEh)
 - **Поддержать автора:** [dalink.to/alexeymaster67](https://dalink.to/alexeymaster67)
